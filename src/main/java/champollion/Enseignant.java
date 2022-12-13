@@ -1,11 +1,21 @@
 package champollion;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+
+import static java.lang.Math.round;
+
 public class Enseignant extends Personne {
 
-    // TODO : rajouter les autres méthodes présentes dans le diagramme UML
+    private List<ServicePrevu> ensignements;
+
+    private List<Intervention> interventionsPlanifiees;
 
     public Enseignant(String nom, String email) {
         super(nom, email);
+        this.ensignements = new ArrayList<>();
+        this.interventionsPlanifiees = new ArrayList<>();
     }
 
     /**
@@ -17,8 +27,11 @@ public class Enseignant extends Personne {
      *
      */
     public int heuresPrevues() {
-        // TODO: Implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        int totalHeures = 0;
+        for(ServicePrevu service : ensignements) {
+            totalHeures += (service.getVolumeCM()*1.5+ service.getVolumeTD()+ service.getVolumeTP()*0.75);
+        }
+        return round(totalHeures);
     }
 
     /**
@@ -31,8 +44,13 @@ public class Enseignant extends Personne {
      *
      */
     public int heuresPrevuesPourUE(UE ue) {
-        // TODO: Implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        int totalHeureUe = 0;
+        for(ServicePrevu service : ensignements) {
+            if(service.getUe().equals(ue)) {
+                totalHeureUe += (int) round(service.getVolumeCM()*1.5+ service.getVolumeTD()+ service.getVolumeTP()*0.75);
+            }
+        }
+        return round(totalHeureUe);
     }
 
     /**
@@ -44,8 +62,31 @@ public class Enseignant extends Personne {
      * @param volumeTP le volume d'heures de TP
      */
     public void ajouteEnseignement(UE ue, int volumeCM, int volumeTD, int volumeTP) {
-        // TODO: Implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        this.ensignements.add(new ServicePrevu(this, ue , volumeCM, volumeTD, volumeTP));
     }
 
+    public boolean enSousService() {
+        return heuresPrevues() < 192;
+    }
+
+    public void ajouterIntervention(Intervention inter) {
+        this.interventionsPlanifiees.add(inter);
+    }
+
+    public int resteAPlanifier(UE ue, TypeIntervention type) throws Exception {
+        int totalIntervention = 0;
+        EnumMap<TypeIntervention, Double> equivalentTD = new EnumMap<TypeIntervention, Double>(TypeIntervention.class);
+        equivalentTD.put(TypeIntervention.CM, 1.5);
+        equivalentTD.put(TypeIntervention.TD, 1.0);
+        equivalentTD.put(TypeIntervention.CM, 0.75);
+        for(Intervention intervention : interventionsPlanifiees) {
+            if (intervention.getMatiere().equals(ue) && intervention.getType() == type){
+                totalIntervention += intervention.getDuree();
+            }
+        }
+        if((heuresPrevuesPourUE(ue) - totalIntervention) < 0){
+            throw new Exception("La durée totale des interventions est supérieure au total d'heures planifiés");
+        }
+        return (heuresPrevuesPourUE(ue) - totalIntervention);
+    }
 }
