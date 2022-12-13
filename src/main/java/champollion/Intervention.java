@@ -3,10 +3,10 @@ package champollion;
 import java.time.LocalDate;
 
 public class Intervention {
-
     private Enseignant intervenant;
     private UE matiere;
 
+    private Salle lieu;
     private TypeIntervention type;
     private LocalDate debut;
 

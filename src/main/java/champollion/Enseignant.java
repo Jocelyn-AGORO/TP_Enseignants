@@ -9,9 +9,7 @@ import static java.lang.Math.round;
 public class Enseignant extends Personne {
 
     private List<ServicePrevu> ensignements;
-
     private List<Intervention> interventionsPlanifiees;
-
     public Enseignant(String nom, String email) {
         super(nom, email);
         this.ensignements = new ArrayList<>();
@@ -73,20 +71,19 @@ public class Enseignant extends Personne {
         this.interventionsPlanifiees.add(inter);
     }
 
-    public int resteAPlanifier(UE ue, TypeIntervention type) throws Exception {
+    public int resteAPlanifier(UE ue, TypeIntervention type) {
         int totalIntervention = 0;
-        EnumMap<TypeIntervention, Double> equivalentTD = new EnumMap<TypeIntervention, Double>(TypeIntervention.class);
-        equivalentTD.put(TypeIntervention.CM, 1.5);
-        equivalentTD.put(TypeIntervention.TD, 1.0);
-        equivalentTD.put(TypeIntervention.CM, 0.75);
+        int totalPourType = 0;
         for(Intervention intervention : interventionsPlanifiees) {
             if (intervention.getMatiere().equals(ue) && intervention.getType() == type){
                 totalIntervention += intervention.getDuree();
             }
         }
-        if((heuresPrevuesPourUE(ue) - totalIntervention) < 0){
-            throw new Exception("La durée totale des interventions est supérieure au total d'heures planifiés");
+        for(ServicePrevu service: ensignements) {
+            if(service.getUe().equals(ue)){
+                totalPourType += service.getTotalFor(type);
+            }
         }
-        return (heuresPrevuesPourUE(ue) - totalIntervention);
+        return (totalPourType - totalIntervention);
     }
 }

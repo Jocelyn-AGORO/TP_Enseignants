@@ -56,4 +56,19 @@ public class ServicePrevu {
     public void setVolumeTP(int volumeTP) {
         this.volumeTP = volumeTP;
     }
+    public int getTotalFor(TypeIntervention type) {
+        int total = 0;
+        switch (type){
+            case CM:
+                total = getVolumeCM();
+            break;
+            case TD:
+                total = getVolumeTD();
+            break;
+            case TP:
+                total = getVolumeTP();
+            break;
+        }
+        return total;
+    }
 }
